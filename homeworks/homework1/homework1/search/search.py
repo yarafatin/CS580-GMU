@@ -87,17 +87,21 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    def ds_push_fn(open_ds, node, cost): open_ds.push(node)  # ignore cost for dfs
+    return generic_search(problem, util.Stack(), ds_push_fn, nullHeuristic)
+
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    def ds_push_fn(open_ds, node, cost): open_ds.push(node)  # ignore cost for bfs
+    return generic_search(problem, util.Queue(), ds_push_fn, nullHeuristic)
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    def ds_push_fn(open_ds, node, cost): open_ds.push(node, cost)  # push cost to priority queue
+    return generic_search(problem, util.PriorityQueue(), ds_push_fn, nullHeuristic)
 
 def nullHeuristic(state, problem=None):
     """
@@ -109,7 +113,45 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    def ds_push_fn(open_ds, node, cost): open_ds.push(node, cost)  # push cost + heuristic to priority queue
+    return generic_search(problem, util.PriorityQueue(), ds_push_fn, heuristic)
+
+
+def generic_search(problem, open_ds, ds_push_fn, heuristic):
+    """
+    A generic search function - implemented using algorithm given in slide 4 AI.4
+    It is capable of performing DFS, BFS, UCS, and A*
+
+    :param problem: problem as-is
+    :param open_ds: the data structure to hold nodes to open. It could be a stack, queue, or priority queue
+    :param ds_push_fn: the function to push to the datastructure provided above. It ignores cost parameter for stack and queue
+    :param heuristic: heuristic used by priorityqueue
+    :return: path
+    """
+    # Initialize ‘current’ node to start state
+    current = {'state': problem.getStartState(), 'parent': None, 'action': None, 'g': 0}
+    closed = [] # Initialize ‘closed’ as an empty list
+    # Initialize ‘open’ as one of (stack, queue, priority queue) -
+
+    # while not( current[‘state’] is goal state):
+    while current and not problem.isGoalState(current['state']):
+        # node may have been added to open before it was added to closed, so handle that
+        if current['state'] in closed:
+            current = open_ds.pop()
+            continue
+        closed.append(current['state'])  # Add current[‘state’] to closed
+        successors = problem.getSuccessors(current['state'])  # successors = successors of current[‘state’]
+        for state, action, cost in successors:  # for s in successors:
+            if state not in closed:  # if not(s.state is in closed):
+                total_cost = current['g'] + cost
+                node = {'state': state, 'parent': current, 'action': action, 'g': total_cost}
+                ds_push_fn(open_ds, node, total_cost + heuristic(state, problem)) # Add new node for state to open
+        current = open_ds.pop() # current = next node in open that’s not in closed
+    path = []  # path = list()
+    while current['parent']:  # while current has a parent:
+        path = [current['action']] + path  # Add current[‘action’] to the front of path
+        current = current['parent']  # current = current[‘parent’]
+    return path
 
 
 # Abbreviations

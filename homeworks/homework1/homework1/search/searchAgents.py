@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -288,6 +288,8 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
+        # the state is the position and visited corners (empty at start)
+        self.start_state = (self.startingPosition, ())
 
     def getStartState(self):
         """
@@ -295,14 +297,16 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.start_state
+
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        visited_corners = state[1]
+        return len(visited_corners) == len(self.corners)
 
     def getSuccessors(self, state):
         """
@@ -325,7 +329,22 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
-
+            # q5:
+            # the state is the position and visited corners (empty at start)
+            currentPosition, visited_corners = state
+            x, y = currentPosition
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            hitsWall = self.walls[nextx][nexty]
+            # above 4 lines used from code snippet provided above to find if there is no wall
+            if not hitsWall:
+                next_position = (nextx, nexty)  # get next position and if it is a corner, track it in state
+                if next_position in self.corners:
+                    if next_position not in visited_corners:
+                        visited_corners = visited_corners + (next_position,)  # add to visited corners tuple
+                next_state = (next_position, visited_corners)
+                successor = (next_state, action, 1)  # 1 is constant cost
+                successors.append(successor)
         self._expanded += 1 # DO NOT CHANGE
         return successors
 
@@ -360,7 +379,38 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    # q6: Make sure that your heuristic returns 0 at every goal state
+    if problem.isGoalState(state):
+        return 0
+    current_position, visited_corners = state
+    unvisited_corners = [x for x in corners if x not in visited_corners]
+
+    # q6: attempt 1: simple heuristic is to get the max of distances from pacman position to all unvisited corners
+    # this didnt get the optimal heuristic
+    # if len(unvisited_corners) == 0:
+    #     return 0
+    # dist = []
+    # for c in unvisited_corners:
+    #     dist.append(util.manhattanDistance(current_position, c))
+    # return max(dist)
+
+    # attempt 2:
+    # this will be the sum of distance from current position to the nearest corner
+    # then add the sum of that corner to the next nearest corner and so on for the remaining corners.
+    # basically, distance of paths to all unvisited corners with no walls considered (problem relaxation).
+    heuristic = 0
+    while unvisited_corners:
+        dist_to_corner = ()  # tuple of store pair of distance to a corner from position and the corner itself
+        for c in unvisited_corners:
+            dist = util.manhattanDistance(current_position, c)
+            dist_to_corner = dist_to_corner + ((dist, c), )
+        nearest_corner_dist, nearest_corner = min(dist_to_corner)  # min on a tuple is based on first element (distance)
+        unvisited_corners.remove(nearest_corner)
+        current_position = nearest_corner
+        heuristic += nearest_corner_dist
+    # and never returns a negative value
+    return abs(heuristic)
+    # return 0 # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -424,6 +474,12 @@ class AStarFoodSearchAgent(SearchAgent):
         self.searchFunction = lambda prob: search.aStarSearch(prob, foodHeuristic)
         self.searchType = FoodSearchProblem
 
+import math
+def euclidiean_distance(point_a, point_b):
+    dx = point_a[0] - point_b[0]
+    dy = point_a[1] - point_b[1]
+    return math.sqrt(dx * dx + dy * dy)
+
 def foodHeuristic(state, problem):
     """
     Your heuristic for the FoodSearchProblem goes here.
@@ -454,7 +510,39 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    # q7: attempt 1: simple distance between pacman and the furthest pellet - gets 3/4
+    # unvisited_food = foodGrid.asList()
+    # heuristic = []
+    # for f in unvisited_food:
+    #     heuristic.append(abs(util.manhattanDistance(position, f)))
+    #
+    # if len(heuristic) == 0:
+    #     return 0
+    # return max(heuristic)
+
+    # attempt 2: minimum spanning tree using prim's algorithm - gets 4/4 expands 7547 nodes
+    edge_pqueue = util.PriorityQueueWithFunction(lambda xy: euclidiean_distance(xy[0], xy[1]))
+    visited = [position]
+    next_pos = position
+    unvisited_food = set(foodGrid.asList())
+    num = len(unvisited_food)
+    heuristic = 0
+    while len(visited) < num + 1:
+        # order all edges by distance from position
+        for food in unvisited_food:
+            edge_pqueue.push((next_pos, food))
+
+        while True:
+            # get distance to nearest node, add to distance, and then move to next node
+            n1, n2 = edge_pqueue.pop()
+            if n2 not in visited:
+                visited.append(n2)
+                unvisited_food.remove(n2)
+                next_pos = n2
+                heuristic += euclidiean_distance(n1, n2)  # tried manhattan distance but consistency fails
+                break
+    return heuristic
+
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -485,7 +573,8 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #  q8. Then, solve that problem with an appropriate search function. The solution should be very short!
+        return search.bfs(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -521,7 +610,8 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # goal is that there is food in this position
+        return self.food[x][y] == True
 
 def mazeDistance(point1, point2, gameState):
     """
