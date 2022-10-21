@@ -1,3 +1,12 @@
+########################
+# Homework 2 | Coding
+# Group Submission
+# Members:
+# 	Yasser Parambathkandy - (G01294910)
+# 	Indranil Pal - (G01235186)
+# Date: 10/21/2022
+########################
+
 # bustersAgents.py
 # ----------------
 # Licensing Information:  You are free to use or extend these projects for
@@ -18,6 +27,7 @@ from game import Directions
 from keyboardAgents import KeyboardAgent
 import inference
 import busters
+import random
 
 class NullGraphics:
     "Placeholder for graphics"
@@ -144,3 +154,25 @@ class GreedyBustersAgent(BustersAgent):
             [beliefs for i, beliefs in enumerate(self.ghostBeliefs)
              if livingGhosts[i+1]]
         "*** YOUR CODE HERE ***"
+
+        # find closest ghost.
+        # initialize distance to ghost using the first distribution and add 1, so it is considered the smallest in loop
+        closest_distance_to_ghost = self.distancer.getDistance(pacmanPosition, livingGhostPositionDistributions[0].argMax()) + 1
+        closest_ghost_position = None
+        for distribution in livingGhostPositionDistributions:
+            ghost_pos = distribution.argMax()
+            distance = self.distancer.getDistance(pacmanPosition, ghost_pos)
+            if distance < closest_distance_to_ghost:
+                closest_distance_to_ghost = distance
+                closest_ghost_position = ghost_pos
+
+        # Find best possible action to get closer to that closest ghost from above step
+        output_action = None
+        for action in legal:
+            successorPosition = Actions.getSuccessor(pacmanPosition, action)
+            distance = self.distancer.getDistance(successorPosition, closest_ghost_position)
+            if distance < closest_distance_to_ghost:
+                closest_distance_to_ghost = distance
+                output_action = action
+
+        return output_action
