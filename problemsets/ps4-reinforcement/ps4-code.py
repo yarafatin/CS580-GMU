@@ -1,3 +1,11 @@
+########################
+# Homework 2 | Coding
+# Group Submission
+# Members:
+# 	Yasser Parambathkandy - (G01294910)
+# 	Indranil Pal - (G01235186)
+# Date: 10/21/2022
+########################
 def q2():
     # Initialize Markov Decision Process model
     actions = (0, 1 , 2, 3 )  # actions (0 - up, 1 down , 2=left, 3=right)
