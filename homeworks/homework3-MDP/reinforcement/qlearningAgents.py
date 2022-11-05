@@ -1,3 +1,12 @@
+########################
+# Homework 3 | Coding
+# Group Submission
+# Members:
+# 	Yasser Parambathkandy - (G01294910)
+# 	Indranil Pal - (G01235186)
+# Date: 11/04/2022
+########################
+
 # qlearningAgents.py
 # ------------------
 # Licensing Information:  You are free to use or extend these projects for
