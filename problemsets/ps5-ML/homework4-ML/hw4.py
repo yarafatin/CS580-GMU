@@ -265,13 +265,13 @@ def vis_rff_model(train_X, train_Y, Theta, Omega, B):
 
 if __name__ == '__main__':
 	data_X, data_Y = load_data('1D-no-noise-lin.txt')
-	#data_X, data_Y = load_data('2D-noisy-lin.txt')
+	data_X, data_Y = load_data('2D-noisy-lin.txt')
 	#plot_helper(data_X, data_Y)
 	theta= linreg_closed_form(data_X, data_Y)
 	#vis_linreg_model(data_X, data_Y, theta)
 
 	init_theta = [0.00, 0.0]
-	linreg_grad_desc(init_theta, data_X, data_Y, .05, 10, False)
-
+	linreg_grad_desc(init_theta, data_X, data_Y, .05, 100, False)
+	#linreg_grad_desc(init_theta, data_X, data_Y)
 
 
