@@ -185,34 +185,12 @@ def linreg_grad_desc(initial_Theta, train_X, train_Y, alpha=0.05, num_iters=500,
 		cur_Theta[1] = cur_Theta[1] - bd * alpha
 		cur_loss = loss(cur_Theta, train_X, pred)
 		step_history.append((cur_Theta, cur_loss))
-		print("curr_theta {}, md {} bd {} cost {} cur_loss {} iteration {} ".format(cur_Theta, md, bd, cost, cur_loss, k))
+		#print("curr_theta {}, md {} bd {} cost {} cur_loss {} iteration {} ".format(cur_Theta, md, bd, cost, cur_loss, k))
+		print(
+			"curr_theta {}, cur_loss {} iteration {} ".format(cur_Theta, cur_loss, k))
 
+	#print(step_history)
 
-	print(step_history[0])
-	print(step_history[499])
-
-
-
-
-
-
-		#pred = numpy.dot(data_X, theta)
-		#error = pred - data_Y
-		#gradient = data_X.T.y(error) / m
-		#print('gradiebnt:',gradient)
-		#cur_Theta = cur_Theta - alpha * gradient
-		#N = train_Y.shape[0]
-
-		# calculate the value of hypothesis function
-		#Z = h_theta(cur_Theta, train_X)
-
-		# find the gradients
-		#gradient_weight = 1 / N * train_X * (Z - train_Y)
-		#gradient_bias = 1 / N * numpy.sum(Z - train_Y)
-		#gradient = numpy.concatenate((gradient_weight, gradient_bias))
-
-		# update the parameters
-		#cur_Theta = cur_Theta - alpha * gradient
 	return step_history
 
 def apply_RFF_transform(X,Omega,B):
@@ -287,16 +265,13 @@ def vis_rff_model(train_X, train_Y, Theta, Omega, B):
 
 if __name__ == '__main__':
 	data_X, data_Y = load_data('1D-no-noise-lin.txt')
-	data_X, data_Y = load_data('2D-noisy-lin.txt')
+	#data_X, data_Y = load_data('2D-noisy-lin.txt')
 	#plot_helper(data_X, data_Y)
 	theta= linreg_closed_form(data_X, data_Y)
 	#vis_linreg_model(data_X, data_Y, theta)
 
-	init_theta = [0.05, 0.1]
-	a = init_theta[0] * data_X + init_theta[1]
-	#print(a)
-
-	linreg_grad_desc(init_theta, data_X, data_Y, .001, 500)
+	init_theta = [0.00, 0.0]
+	linreg_grad_desc(init_theta, data_X, data_Y, .05, 10, False)
 
 
 
