@@ -1,0 +1,20 @@
+Installation:
+Install and Use Python 3.6
+This code was developed in an Anaconda environment but should work in any python setup
+The following packages needs to be installed -
+    - numpy
+
+Development Environment:
+Code was developed and tested in Windows 10 8*16 machine
+Pycharm IDE was used code development
+Testing has been not been performed on other OS but should work provided installation is done as given above
+
+Run the code:
+Extract the hw4-yparambathkandy-ipal.zip to any folder and execute
+python hw.py
+This will run and show plots. Close the plots for the program execution to continue or else it halts.
+
+Other information:
+ - The main method has the order of execution and answers questions #1, #2, and #3.
+ - For closed form and gradient descent, 1s have been added as an additional feature to handle non-zero y-intercept
+ - The apply_RFF_transform has been modified to add ones in front to overcome the shape requirement in this function
