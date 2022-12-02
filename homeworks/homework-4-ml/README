@@ -17,4 +17,4 @@ This will run and show plots. Close the plots for the program execution to conti
 Other information:
  - The main method has the order of execution and answers questions #1, #2, and #3.
  - For closed form and gradient descent, 1s have been added as an additional feature to handle non-zero y-intercept
- - The apply_RFF_transform has been modified to add ones in front to overcome the shape requirement in this function
+ - The apply_RFF_transform has been modified to add ones in front to overcome the shape requirement in other functions
